@@ -1,6 +1,11 @@
 var fs = require('fs');
 
-fs.mkdirSync('test');
+try {
+   fs.mkdirSync('test');
+}
+catch(err) {
+   console.error('디렉토리 생성 에러 : ', err);
+}
 
 // test 폴더 감시
 var watcher = fs.watch('test', function(event, filename) {
@@ -23,7 +28,15 @@ setTimeout(() => {
 }, 3000);
    
 setTimeout(() => {
-   fs.rmdirSync('test');
+   console.log("디렉토리 삭제");
+   try {
+      fs.rmdirSync('test');
+      watcher.close();
+   }
+   catch(err) {
+      console.error('디렉토리 삭제 에러 : ', err);
+   }
+
 }, 4000);
 
 
