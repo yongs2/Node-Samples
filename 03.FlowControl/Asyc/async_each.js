@@ -8,7 +8,7 @@ async.each(array, function (item, callback) {
    setTimeout(function () {
       console.log('Task Done ', item);
       callback();
-   }, item);
+   }, 2000, item);
 }, function (err) {
    if (err) {
       console.error('Error : ', err);

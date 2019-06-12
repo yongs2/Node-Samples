@@ -1,6 +1,6 @@
 var async = require('async');
 
-async.parallel(
+async.parallel(   // 여러 테스크를 동시에 실행
    [
       function(callback) {
          console.log('태스크 1 시작');

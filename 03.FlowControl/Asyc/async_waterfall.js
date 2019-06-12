@@ -1,6 +1,6 @@
 var async = require('async');
 
-async.waterfall([
+async.waterfall([ // 다음 task 로 정보를 보내는 경우에 사용
    function task1(callback) {
       console.log('태스크 1 시작');
       setTimeout(function () {
