@@ -6,11 +6,11 @@
 // 같은 이벤트에 대해서 이벤트 리스너를 2개 등록 - 둘다 모두 동작
 // ES6. 
 process.on('exit', code => {
-   console.log('Exit event : ' + code); 
+   console.log('1.Exit event : ' + code); 
 });
 
 process.addListener('exit', function(code) {
-   console.log('Exit event : ' + code);
+   console.log('2.Exit event : ' + code);
 });
 
 
