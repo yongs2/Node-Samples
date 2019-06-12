@@ -5,6 +5,15 @@
 var num = 10000;
 var primeNumbers = [];
 
+// 시간 측정 - SUM
+console.time('SUM');
+var sum = 0;
+for (var i=1; i<10000; i++) {
+   sum += i;
+}
+console.log(`SUM : ${sum}`)
+console.timeEnd('SUM');
+
 // 시간 측정 시작
 console.time('PRIME NUMBER');
 
