@@ -14,8 +14,12 @@ const server = http.createServer( (req, res) => {
    	// 파비콘 응답
    	return;
    }
+   else if(req.url == '/') {
+      fs.createReadStream('./public/htmlPage.html').pipe(res);
+   }
+
    // 리소스 파일 경로
-   var path = __dirname + pathUtil.sep + 'resources' + req.url;
+   var path = __dirname + pathUtil.sep + req.url;
    console.log('Resource Path :', path);
 
    // 파일 접근 가능 여부 확인   
@@ -36,10 +40,10 @@ const server = http.createServer( (req, res) => {
             return;
          }
          var ext = pathUtil.extname(path).toLowerCase();
-         console.log(ext);
          res.statusCode = 200;
          var contentType = getContentType(ext);
          res.setHeader('Content-type', contentType);
+         console.log(ext, contentType);
          res.end(data);
       });
    });
