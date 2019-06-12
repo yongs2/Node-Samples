@@ -81,7 +81,7 @@ function handleMultipartRequest(req, res) {
       if (image && image.size > 0) {
          // 확장자
          var ext = pathUtil.parse(image.name).ext;
-         console.log('poster path : ', image.path, ext);
+         console.log('poster path : ', image.path, ", Name=", image.name, ", Ext=", ext);
 
          // 새로운 파일 이름 생성
          var date = new Date();
