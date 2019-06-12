@@ -5,7 +5,7 @@
   "main": "jsonParsing.js",
   "dependencies": {
     "jstoxml": "^0.2.3",
-    "libxmljs": "^0.16.1",
+    "libxmljs": "^0.19.5",
     "node-xml": "^1.0.2",
     "xml": "^1.0.0",
     "xml2js": "^0.4.15"
