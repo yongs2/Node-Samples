@@ -3,7 +3,8 @@ const util = require('util');
 console.log('== Format String ==');
 
 // Number
-const str1 = util.format('%d + %d = %d', 1, 2, (1+2));
+var a = 1, b = 2;
+const str1 = util.format('%d + %d = %d', a, b, (a+b));
 console.log(str1);
 
 // JSON Format
