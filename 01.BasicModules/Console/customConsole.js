@@ -7,7 +7,7 @@ var Console = require('console').Console;
 
 var output = fs.createWriteStream('./stdout.log');
 var errorOutput = fs.createWriteStream('./stderr.log');
-var logger = new Console(output, errorOutput);
+var logger = new Console(output, errorOutput);  // new Console(stdout[, stderr][, ignoreerrors])
 
 // stdout.log 파일로 로그 출력
 logger.info('info','정보 메세지');
