@@ -11,6 +11,8 @@ console.log(str1);
 const obj = { name:'IU', job:'singer' };
 const str2 = util.format('%j', obj);
 console.log(str2);
+console.log("format.%o =[" + util.format('%o', obj) + "]");
+console.log("format.%O =[" + util.format('%O', obj) + "]");
 
 // String
 const str3 = util.format('%s %s', 'Hello', 'World');
