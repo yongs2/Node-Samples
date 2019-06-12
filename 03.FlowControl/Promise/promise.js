@@ -22,23 +22,23 @@ let asyncFailTask = new Promise( (resolve, reject) => {
 
 // 성공/실패 콜백 함수를 입력해서 사용하기
 asyncSuccessTask.then( (result) => {
-   console.log('asyncSuccessTask success');
+   console.log('asyncSuccessTask success : ', result);
 }, (err) => {
-   console.log('asyncSuccessTask fail');
+   console.log('asyncSuccessTask fail : ', err);
 });
 
 
 // then 함수의 에러 처리 함수(onRejected)로 에러 다루기
 asyncFailTask.then( (result) => {
-   console.log('asyncFailTask success');
+   console.log('asyncFailTask success : ', result);
 }, (err) => {
-   console.log('asyncFailTask fail');
+   console.log('asyncFailTask fail : ', err);
 });
 
 
 // catch 함수를 이용한 에러 처리
 asyncFailTask.then( (result) => {
-   console.log('asyncFailTask success');
+   console.log('asyncFailTask success : ', result);
 }).catch( (error) => {
-   console.log('asyncFailTask fail');
+   console.log('asyncFailTask fail : ', error);
 });
