@@ -3,6 +3,9 @@
 <meta chatset="UTF-8">
 </head>
 <body>
+<% var tag='h1' %>
+<<%= tag %>> TAG 만들기 </<%= tag %>>   <!-- TAG를 동적으로 만들기 -->
+        
 <h1><%= title %></h1>
 <ul>
 <% movieList.forEach(function(item) { %>
