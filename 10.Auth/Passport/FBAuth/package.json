@@ -10,13 +10,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.14.1",
-    "ejs": "^2.3.4",
-    "express": "^4.13.3",
-    "express-session": "^1.12.0",
+    "body-parser": "^1.19.0",
+    "ejs": "^2.6.1",
+    "express": "^4.17.1",
+    "express-session": "^1.16.2",
     "fb": "^0.7.3",
-    "morgan": "^1.6.1",
-    "passport": "^0.3.0",
-    "passport-facebook": "^2.0.0"
+    "morgan": "^1.9.1",
+    "passport": "^0.3.2",
+    "passport-facebook": "^2.1.1"
   }
 }
