@@ -8,12 +8,13 @@ var server = net.createServer( socket => {
    
    socket.write('Welcome to TCP Chat Service, ' + nickname + '\n');
    socket.write('대화명 변경 : \\rename [NAME]\n');
+   socket.write('목록 출력 : \\list\n');
    socket.write('채팅방 종료 : \\exit\n');   
 
    // 임시 닉네임 생성
 
    var nickname = 'Guest' + Math.floor(Math.random()*100);
-   clientList.push(socket);
+   clientList.push({socket:socket, name:nickname});
 
    socket.on('data', (data) => {
          console.log('socket is nil?', !socket)
@@ -30,7 +31,23 @@ var server = net.createServer( socket => {
          console.log(message);
                   
          nickname = newNickName;
+         for(var clientIdx in clientList) {
+            console.log(clientIdx, '=', clientList[clientIdx].name);
+            if(clientList[clientIdx].socket == socket) {
+               clientList[clientIdx].name = nickname;
+               break;
+            }
+         }
          return;         
+      }
+      else if (message.trim('\\list')) {
+         var clientListMsg = "";
+         for(var clientIdx in clientList) {
+            console.log(clientIdx, '=', clientList[clientIdx].name);
+            clientListMsg += "IDX[" + clientIdx + "]=" + clientList[clientIdx].name + "\n";
+         }
+         socket.write(clientListMsg);
+         return;
       }
       else {
          console.log(nickname + ' write ' + message);   
