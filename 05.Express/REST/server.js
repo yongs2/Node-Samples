@@ -5,10 +5,10 @@ var movieRouter = require('./movie_router');
 var app = express();
 app.use(bodyParser.urlencoded({ extended: false }))
 // JADE 설정
-// app.set('view engine', 'jade');
+app.set('view engine', 'jade');
 // EJS
-app.set('view engine', 'ejs');
-app.set('views', __dirname + '/views');
+//app.set('view engine', 'ejs');
+//app.set('views', __dirname + '/views');
 
 // Logging
 app.use(function(req, res, next) {

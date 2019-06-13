@@ -1,0 +1,13 @@
+html
+head
+    meta(chatset="UTF-8")
+body
+    h1= title
+    ul
+        for item in movieList
+            li
+                img(src="images/" + item.image height="50px")
+                span= item.title
+
+    div
+        a(href="/newMovie") Add new Movie
