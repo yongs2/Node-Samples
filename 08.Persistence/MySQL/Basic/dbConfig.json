@@ -1,7 +1,7 @@
 {
-   "host": "localhost",
+   "host": "192.168.0.210",
    "user": "root",
-   "password": "",
-   "port": 3306,
-   "database": "example"
+   "password": "password",
+   "port": 3307,
+   "database": "mysql_example"
 }

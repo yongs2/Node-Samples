@@ -1,4 +1,6 @@
-create database if not exists mysql_example;
+-- 기본 charset 을 UTF-8로 지정
+create database if not exists mysql_example 
+DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 use mysql_example;
 

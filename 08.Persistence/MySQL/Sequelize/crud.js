@@ -3,9 +3,12 @@
  */
 
 const Sequelize = require('sequelize');
-const sequelize = new Sequelize('sequelize_example', 'root', '', {});
+const sequelize = new Sequelize('sequelize_example', 'root', 'password', {});
 
 const Movie = sequelize.define('movie', {
+    dialect: 'mysql',
+    host: '192.168.0.210',
+    port : 3307,
     movie_id: { type: Sequelize.INTEGER(2), primaryKey: true, autoIncrement: true },
     title: Sequelize.STRING,
     director: Sequelize.STRING,
