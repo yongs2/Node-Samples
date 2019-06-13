@@ -7,6 +7,9 @@ const express = require('express');
 const app = express();
 app.listen(3000);
 
+// NODE_ENV 환경 설정을 지정해야 한다.
+// Linux : export NODE_ENV=production; echo $NODE_ENV
+// Windows : set NODE_ENV=production; echo %NODE_ENV%
 console.log('env : ', app.get('env'));
 
 app.use(function (req, res, next) {
