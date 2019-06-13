@@ -1,0 +1,29 @@
+GET http://127.0.0.1:3000/movies HTTP/1.1
+
+###
+
+GET http://127.0.0.1:3000/movies/avata HTTP/1.1
+
+###
+
+POST http://127.0.0.1:3000/movies HTTP/1.1
+content-type: application/json
+
+{
+    "title": "sample",
+    "director": "Wed, 21 Oct 2015 18:27:50 GMT"
+}
+
+###
+
+PUT http://127.0.0.1:3000/movies/avata HTTP/1.1
+content-type: application/json
+
+{
+    "title": "sample",
+    "director": "Wed, 21 Oct 2015 18:27:50 GMT"
+}
+
+###
+
+DELETE http://127.0.0.1:3000/movies/avata HTTP/1.1
