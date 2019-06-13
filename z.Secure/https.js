@@ -12,6 +12,7 @@
  *    openssl x509 -req -in req.csr -signkey key.pem -out cert.pem -days 365
  * 
  */
+var http = require('http');
 var https = require('https');
 var fs = require('fs');
 
@@ -20,9 +21,13 @@ var options = {
   cert: fs.readFileSync('./cert.pem')
 };
 
+http.createServer(function(req, res) {
+   res.end("hello unsecure server");
+}).listen(3000);
+
 var server = https.createServer(options, function(req, res) {
    console.log('Secure Connection Request');
-   res.end('Hello');
+   res.end('Hello secure server');
 });
 
 server.listen(3001, function(err) {
