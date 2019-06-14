@@ -48,3 +48,5 @@ BasicModules/fs/textData.txt
 BasicModules/FileSystem/binaryData.dat
 
 package-lock.json
+
+.vscode
