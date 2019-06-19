@@ -1,0 +1,188 @@
+---
+swagger: "2.0"
+info:
+  description: "서비스 제공 서버와 연동하기 위한 REST API"
+  version: "1.0.0"
+  title: "서비스 REST API"
+  contact:
+    email: "yongs2@hotmail.com"
+  license:
+    name: "..."
+basePath: "/api"
+tags:
+- name: "MultiAnnounce"
+  description: "다량안내 이력"
+schemes:
+- "http"
+paths:
+  /getMultiAnnounce.do:
+    get:
+      tags:
+      - "MultiAnnounce"
+      summary: "다량안내 이력 조회"
+      description: "기간별 다량안내 이력 조회"
+      operationId: "getMultiAnnounce"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "START_DATE"
+        in: "query"
+        description: "조회 시작 시간"
+        required: true
+        type: "string"
+      - name: "END_DATE"
+        in: "query"
+        description: "조회 종료 시간"
+        required: true
+        type: "string"
+      - name: "USER_ID"
+        in: "query"
+        description: "상담사 아이디"
+        required: false
+        type: "string"
+      - name: "ANI"
+        in: "query"
+        description: "발신번호"
+        required: false
+        type: "string"
+      - name: "ANN_NAME"
+        in: "query"
+        description: "안내명"
+        required: false
+        type: "string"
+      - name: "ANN_NUMBER"
+        in: "query"
+        description: "안내번호"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "다량안내 이력"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/MultiAnnouceItemSelect"
+      x-swagger-router-controller: "MultiAnnounce"
+  /insertMultiAnnounce.do:
+    post:
+      tags:
+      - "MultiAnnounce"
+      summary: "다량안내 이력 저장"
+      description: "다량안내 이력을 여러건 저장"
+      operationId: "insertMultiAnnounce"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "item"
+        description: "다량안내 항목"
+        required: true
+        schema:
+          type: "array"
+          items:
+            $ref: "#/definitions/MultiAnnouceItemInsert"
+      responses:
+        200:
+          description: "처리 결과"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+      x-swagger-router-controller: "MultiAnnounce"
+definitions:
+  MultiAnnouceItemInsert:
+    type: "object"
+    required:
+    - "ANI"
+    - "ANN_NUMBER"
+    - "UNIQ_ID"
+    - "SEQ_NO"
+    - "SVC_TYPE"
+    - "USER_ID"
+    properties:
+      USER_ID:
+        type: "string"
+        description: "상담사 아이디"
+      SVC_TYPE:
+        type: "string"
+        description: "서비스 종료"
+      ANI:
+        type: "string"
+        description: "발신번호"
+      ANN_NUMBER:
+        type: "string"
+        description: "안내번호"
+      ANN_ADDRS:
+        type: "string"
+        description: "안내주소"
+      ANN_NAME:
+        type: "string"
+        description: "안내명"
+      ANI_OPER:
+        type: "string"
+        description: "발신번호 사업자"
+      ANI_NAME:
+        type: "string"
+        description: "발신 고객명"
+      UNIQ_ID:
+        type: "string"
+        description: "식별 아이디"
+      SEQ_NO:
+        type: "string"
+        description: "다량안내 순서"
+  MultiAnnouceItemSelect:
+    type: "object"
+    required:
+    - "ANI"
+    - "ANN_NUMBER"
+    - "SVC_TYPE"
+    - "USER_ID"
+    properties:
+      STD_TIME:
+        type: "string"
+        description: "안내 시간"
+      USER_ID:
+        type: "string"
+        description: "상담사 아이디"
+      USER_NAME:
+        type: "string"
+        description: "상담사 이름"
+      SVC_TYPE:
+        type: "string"
+        description: "서비스 종료"
+      ANI:
+        type: "string"
+        description: "발신번호"
+      ANN_NUMBER:
+        type: "string"
+        description: "안내번호"
+      ANN_ADDRS:
+        type: "string"
+        description: "안내주소"
+      ANN_NAME:
+        type: "string"
+        description: "안내명"
+    example:
+      ANN_NUMBER: "ANN_NUMBER"
+      STD_TIME: "STD_TIME"
+      ANN_NAME: "ANN_NAME"
+      ANN_ADDRS: "ANN_ADDRS"
+      USER_ID: "USER_ID"
+      SVC_TYPE: "SVC_TYPE"
+      USER_NAME: "USER_NAME"
+      ANI: "ANI"
+  ApiResponse:
+    type: "object"
+    required:
+    - "result"
+    - "resultString"
+    properties:
+      result:
+        type: "string"
+        description: "응답 값"
+      resultString:
+        type: "string"
+        description: "설명"
+    example:
+      result: "result"
+      resultString: "resultString"

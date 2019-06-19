@@ -1,0 +1,33 @@
+{
+  "name": "rest-api",
+  "version": "0.0.0",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "start": "node ./server.js",
+    "test": "mocha spec/*.js"
+  },
+  "dependencies": {
+    "async": "^3.0.1",
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "http-errors": "~1.6.3",
+    "jade": "~1.11.0",
+    "java": "^0.11.0",
+    "jdbc": "^0.6.4",
+    "log4js": "^4.3.1",
+    "morgan": "~1.9.1",
+    "node-gyp": "^5.0.0",
+    "swagger-ui-express": "^4.0.6",
+    "yamljs": "^0.3.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
+    "mocha": "^6.1.4"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

@@ -1,0 +1,70 @@
+# 개발 서버 테스트
+@hostname = 127.0.0.1
+@port = 3000
+@host = {{hostname}}:{{port}}
+@contentType = application/json
+
+###
+# 0. 디폴트
+GET http://{{host}}/api/
+
+###
+# 1. 다랑안내 이력 조회 - 필수 조건만
+@1_start_date=20190614000000
+@1_end_date=20190630235959
+@1_user_id=devTest001
+@1_ani=02-9999-1234
+@1_ann_name=테스트
+GET http://{{host}}/api/getMultiAnnounce?START_DATE={{1_start_date}}&END_DATE={{1_end_date}}&USER_ID={{1_user_id}}&ANI={{1_ani}}&ANN_NAME={{1_ann_name}} HTTP/1.1
+
+### 
+# 2. 다량안내 이력 저장
+POST http://{{host}}/api/insertMultiAnnounce HTTP/1.1
+content-type: {{contentType}}
+
+[
+    {
+        "USER_ID": "devTest001",
+        "SVC_TYPE": "0",
+        "ANI" : "0212341234",
+        "ANN_NAME" : "테스트",
+        "ANN_NUMBER" : "02-9999-1234",
+        "ANN_ADDRS" : "안내 주소 테스트6901",
+        "ANI_OPER" : "A",
+        "ANI_NAME" : "애니네임",
+        "UNIQ_ID" : "10110001",
+        "SEQ_NO" : "0"
+    },
+    {
+        "USER_ID": "devTest001",
+        "SVC_TYPE": "1",
+        "ANI" : "0212341234",
+        "ANN_NAME" : "테스트",
+        "ANN_NUMBER" : "02-9999-1234",
+        "ANN_ADDRS" : "안내 주소 테스트7001",
+        "ANI_OPER" : "A",
+        "ANI_NAME" : "애니네임",
+        "UNIQ_ID" : "10110002",
+        "SEQ_NO" : "1"
+    }
+]
+
+### 
+# 3. 다량안내 이력 저장 실패
+POST http://{{host}}/api/insertMultiAnnounce HTTP/1.1
+content-type: {{contentType}}
+
+[
+    {
+        "USER_ID": "",
+        "SVC_TYPE": "0",
+        "ANI" : "0212341234",
+        "ANN_NAME" : "테스트",
+        "ANN_NUMBER" : "02-9999-1234",
+        "ANN_ADDRS" : "안내 주소 테스트",
+        "ANI_OPER" : "A",
+        "ANI_NAME" : "애니네임",
+        "UNIQ_ID" : "10110001",
+        "SEQ_NO" : "0"
+    }
+]
