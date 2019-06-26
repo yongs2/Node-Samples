@@ -1,0 +1,102 @@
+# 개발 서버 테스트
+@oauth_hostname = 127.0.0.1
+@oauth_port = 3001
+@oauth_host = {{oauth_hostname}}:{{oauth_port}}
+@ins_hostname = 127.0.0.1
+@ins_port = 3000
+@ins_host = {{ins_hostname}}:{{ins_port}}
+@contentType = application/json
+
+###
+# @name password
+@clientId=application
+@clientSecret=secret
+GET http://{{oauth_host}}/oauth/token HTTP/1.1
+Authorization: Basic {{clientId}} {{clientSecret}}
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&username=wedul&password=dbsafer00
+
+###
+# @name getAuthorize
+# 2. authorization_code
+# 2-1. code 요청
+@responseType=code
+@clientId=application
+@redirectUri=https://www.naver.com
+@scope=testOauth2
+@state=1234
+POST http://{{oauth_host}}/oauth/authorize?response_type={{responseType}}&client_id={{clientId}}&redirect_uri={{redirectUri}}&scope={{scope}}&state={{state}}
+
+###
+# @name requestAccessToken
+# 2.
+# 2-2. AccessToken 발급 요청
+@grant_type1=authorization_code
+@authorizationCode = {{getAuthorize.response.body.$.authorizationCode}}
+POST http://{{oauth_host}}/oauth/token
+Authorization: Basic {{clientId}} {{clientSecret}}
+Content-Type: application/x-www-form-urlencoded
+
+grant_type={{grant_type1}}&code={{authorizationCode}}&redirect_uri={{redirectUri}}
+
+###
+# 2-3. Refresh Token으로 새로운 access_token 발급 요청 인증 방식
+@grant_type2=refresh_token
+@accessToken = {{requestAccessToken.response.body.$.accessToken}}
+@refreshToken = {{requestAccessToken.response.body.$.refreshToken}}
+POST http://{{oauth_host}}/oauth/token
+Authorization: Basic {{clientId}} {{clientSecret}}
+Content-Type: application/x-www-form-urlencoded
+
+grant_type={{grant_type2}}&refresh_token={{refreshToken}}
+
+
+# 
+# https://auth0.com/docs/flows/guides/client-credentials/call-api-client-credentials
+# 
+# 1. Request Token
+# curl --request POST \
+#  --url 'https://YOUR_DOMAIN/oauth/token' \
+#  --header 'content-type: application/x-www-form-urlencoded' \
+#  --data 'grant_type=client_credentials&client_id=%24%7Baccount.clientId%7D&client_secret=YOUR_CLIENT_SECRET&audience=YOUR_API_IDENTIFIER'
+# Response
+# {
+#  "access_token":"eyJz93a...k4laUWw",
+#  "token_type":"Bearer",
+#  "expires_in":86400
+# }
+# 2. Call your API
+# curl --request GET \
+#  --url https://myapi.com/api \
+#  --header 'authorization: Bearer ACCESS_TOKEN' \
+#  --header 'content-type: application/json'
+
+###
+# @name requestAccessTokenWithClientCredentials
+# 3.
+# 3-1. client-credentials 로 AccessToken 발급 요청
+@grant_type31=client_credentials
+@client_id31=client
+@client_secret31=secret
+@scope31=read,write
+POST http://{{oauth_host}}/oauth/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type={{grant_type31}}&client_id={{client_id31}}&client_secret={{client_secret31}}&scope={{scope31}}
+
+###
+# 3-2. 다랑안내 이력 조회 - 필수 조건만
+@1_start_date=20190614000000
+@1_end_date=20190630235959
+@1_user_id=t00008
+@1_ani=02-6925-6768
+@1_ann_name=테스트
+GET http://{{ins_host}}/insMng/getMultiAnnounce.do?START_DATE={{1_start_date}}&END_DATE={{1_end_date}}&USER_ID={{1_user_id}}&ANI={{1_ani}}&ANN_NAME={{1_ann_name}} HTTP/1.1
+Authorization: {{requestAccessTokenWithClientCredentials.response.body.$.token_type}} {{requestAccessTokenWithClientCredentials.response.body.$.access_token}}
+
+# validation access token
+# https://graph.facebook.com/me?access_token={accessToken}
+# https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={accessToken}
+# https://<region>.onelogin.com/oidc/token/introspection
+# https://api.github.com/user?access_token=<access_token_val>
