@@ -5,11 +5,18 @@ var router = express.Router();
 var log = require('log4js').getLogger("api");
 const MultiAnnounce = require('../model/MultiAnnounce');
 const ApiCall = require('../service/ApiCall')('dev');
+var passport = require('passport');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
     res.sendStatus(501); // Not implemented
 });
+
+function checkScope(allowScope, resScope) {
+    let resScopes = resScope.split(',');
+    let allowScopes = allowScope.split(',');
+    if(resScopes.every(s => allowScopes.indexOf(s) < 0)) throw Error("Req.InvalidScope.allow:" + allowScope + ", resp:" + resScope);
+}
 
 function checkValidObjectParam(obj, paramName) {
     if (obj[paramName] == undefined || obj[paramName].length <= 0) throw Error("Req." + paramName + ' is NULL')
@@ -19,23 +26,31 @@ function checkValidArrayParam(arr, idx, paramName) {
     if (arr[idx][paramName] == undefined || arr[idx][paramName].length <= 0) throw Error("Req." + idx + '.' + paramName + ' is NULL')
 }
 
-router.get("/getMultiAnnounce", function (req, res, next) { // GET 이므로, req.query
-    log.debug(">>> getMultiAnnounce : req.query : ", req.query, ",body=", req.body);
-    
-    checkValidObjectParam(req.query, 'START_DATE');
-    checkValidObjectParam(req.query, 'END_DATE');
+router.get("/getMultiAnnounce", 
+    passport.authenticate('bearer', { session: false }),
+    function (req, res, next) { // GET 이므로, req.query
+	    log.debug(">>> getMultiAnnounce : req.query : ", req.query, ",body=", req.body, ",user=", req.user);
+	    log.debug(">>> oauth: ", req.headers.authorization);
 
-    MultiAnnounce.getMultiAnnounceList(req.query, function(err, result) {
-        if(err) {
-            return next(err);
-        }
-        res.send(result);
-    });
+        checkScope("read", req.user.scope);
+	    checkValidObjectParam(req.query, 'START_DATE');
+	    checkValidObjectParam(req.query, 'END_DATE');
+
+	    MultiAnnounce.getMultiAnnounceList(req.query, function(err, result) {
+	        if(err) {
+	            return next(err);
+	        }
+	        res.send(result);
+	    });
 });
 
-router.post('/insertMultiAnnounce', function (req, res, next) {  // POST 이므로, req.body
+router.post('/insertMultiAnnounce', 
+    passport.authenticate('bearer', { session: false }),
+    function (req, res, next) {  // POST 이므로, req.body
     log.debug(">>> insertMultiAnnounce : req.body : ", typeof(req.body), ", Con=", req.body.constructor, ", Len=", req.body.length);
     
+    checkScope("write", req.user.scope);
+
     if(req.body.constructor != Array) {
         throw Error('Request must be Array')
     }
@@ -66,8 +81,12 @@ router.post('/insertMultiAnnounce', function (req, res, next) {  // POST 이므�
     });
 });
 
-router.get('/getWorkTime', function (req, res, next) { // GET 이므로, req.query
+router.get('/getWorkTime', 
+	passport.authenticate('bearer', { session: false }),
+    function (req, res, next) { // GET 이므로, req.query
     log.debug(">>> getWorkTime : req.query : ", req.query);
+
+    checkScope("read", req.user.scope);
 
     ApiCall.getWorkTime(req.query['START_DATE'], req.query['END_DATE'], function (err, result) {
         if (!err) {

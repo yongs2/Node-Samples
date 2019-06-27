@@ -7,12 +7,31 @@ var cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 var morgan = require('morgan');
 const log4js = require('log4js');
+var passport = require('passport');
+var Strategy = require('passport-http-bearer').Strategy;
+const oauthApiCall = require('./service/oauthApiCall')('dev');
+
+const dotenv = require('dotenv');
+dotenv.config();
 
 var log = log4js.getLogger("app");
 console.log('config/log4js-' + (process.env.NODE_ENV || 'development') + '.json');
 log4js.configure('config/log4js-' + (process.env.NODE_ENV || 'development') + '.json');
 
 var apiRouter = require('./routes/api');
+
+passport.use(new Strategy(
+  function(token, cb) {
+    oauthApiCall.validAccessToken(token, function (err, result) {
+      if (!err) {
+          log.debug(">>> validAccessToken : result : ", result);
+          return cb(null, result);
+      } else {
+          log.info(">>> validAccessToken : err : ", err);
+          return cb(err);
+      }
+  });
+}));
 
 var app = express();
 
@@ -30,6 +49,16 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json({}));
 app.use(bodyParser.urlencoded({ extended: false }));
 
+app.use(function(req, res, next) {
+  if (!req.headers.authorization) {
+    return res.status(403).json({ error: 'No credentials sent!' });
+  }
+  else {
+
+  }
+  next();
+});
+
 app.use('/api', apiRouter);
 
 // catch 404 and forward to error handler
@@ -45,7 +74,13 @@ app.use(function(err, req, res, next) {
 
   res.setHeader('Content-Type', 'application/json');
   var response = {"result":-1, "resultString":"FAIL"};
-  res.status(200).end(JSON.stringify(response));
+
+  if(err.status == 401) {
+    res.status(err.status || 500).end(JSON.stringify(response));
+  }
+  else {
+    res.status(200).end(JSON.stringify(response));
+  }
 
   if (app.get('env') === 'development') {
     console.error(err.stack);

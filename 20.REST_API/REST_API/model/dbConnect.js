@@ -61,51 +61,61 @@ exports.insDb = function(callback) {
 
 exports.update = function(db, sql, callback) {
     reserve(db, function(err, connobj, conn) {
-        conn.createStatement(function(err, statement) {
-            if (err) {
-                release(db, connobj, err, null, callback);
-            } 
-            else {
-                statement.executeUpdate(sql, function(err, result) {
-                    release(db, connobj, err, result, callback);
-                });
-            }
-        });
+        if(err) {
+            release(db, connobj, err, null, callback);
+        }
+        else {
+            conn.createStatement(function(err, statement) {
+                if (err) {
+                    release(db, connobj, err, null, callback);
+                } 
+                else {
+                    statement.executeUpdate(sql, function(err, result) {
+                        release(db, connobj, err, result, callback);
+                    });
+                }
+            });
+        }
     });
 };
 
 exports.query = function(db, sql, callback) {
     reserve(db, function(err, connobj, conn) {
-        conn.createStatement(function(err, statement) {
-          if (err) {
+        if(err) {
             release(db, connobj, err, null, callback);
-          }
-          else {
-            statement.setFetchSize(100, function(err) {
-                if (err) {
-                    release(db, connobj, err, null, callback);
-                } 
-                else {
-                    statement.executeQuery(sql, function(err, resultset) {
-                        if (err) {
-                            release(db, connobj, err, null, callback);
-                        } else {
-                            resultset.toObjArray(function(err, results) {
-                                if(results != undefined) {
-                                    if (results.length > 0) {
-                                        log.info("RESULT: ", results);
+        }
+        else {
+            conn.createStatement(function(err, statement) {
+            if (err) {
+                release(db, connobj, err, null, callback);
+            }
+            else {
+                statement.setFetchSize(100, function(err) {
+                    if (err) {
+                        release(db, connobj, err, null, callback);
+                    } 
+                    else {
+                        statement.executeQuery(sql, function(err, resultset) {
+                            if (err) {
+                                release(db, connobj, err, null, callback);
+                            } else {
+                                resultset.toObjArray(function(err, results) {
+                                    if(results != undefined) {
+                                        if (results.length > 0) {
+                                            log.debug("RESULT: ", results);
+                                        }
+                                        release(db, connobj, err, results, callback);
                                     }
-                                    release(db, connobj, err, results, callback);
-                                }
-                                else {
-                                    release(db, connobj, err, null, callback);
-                                }
-                            });
-                        }
-                    });
-                }
+                                    else {
+                                        release(db, connobj, err, null, callback);
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
             });
-          }
-        });
+        }
     });
 };
