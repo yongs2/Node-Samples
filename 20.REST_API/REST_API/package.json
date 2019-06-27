@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node ./server.js",
-    "test": "mocha spec/*.js"
+    "test": "mocha spec/*.js",
+    "dev" : "export NODE_ENV=development || set NODE_ENV=development&& node ./server.js",
+    "prod" : "export NODE_ENV=production || set NODE_ENV=production&& node ./server.js"
   },
   "dependencies": {
     "async": "^3.0.1",

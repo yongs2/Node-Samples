@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "test": "mocha spec/*.js --exit"
+    "test": "mocha spec/*.js --exit",
+    "dev" : "export NODE_ENV=development || set NODE_ENV=development&& node ./bin/www",
+    "prod" : "export NODE_ENV=production || set NODE_ENV=production&& node ./bin/www"
   },
   "dependencies": {
     "bluebird": "^3.5.5",
