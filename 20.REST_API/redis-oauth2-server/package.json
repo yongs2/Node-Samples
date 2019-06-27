@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "test": "mocha spec/*.js"
+    "test": "mocha spec/*.js --exit"
   },
   "dependencies": {
     "bluebird": "^3.5.5",
