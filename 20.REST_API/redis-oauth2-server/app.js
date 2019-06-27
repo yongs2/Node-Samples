@@ -46,10 +46,20 @@ app.get('/v1/tokeninfo', async function(req, res) {
   log.info('tokeninfo.getAccessToken=', req.query['access_token']);
   try {
     var tokens = await oauthModel.getAccessToken(req.query['access_token'])
-    if(tokens == false) {
+    if(tokens == undefined) {
+      log.info('tokeninfo.getAccessToken, fail 500');
+      res.sendStatus(500);
+    }
+    else if(tokens == false) {
+      log.info('tokeninfo.getAccessToken, false 401');
       res.sendStatus(401);
     }
+    else if(tokens.length == 0) {
+      log.info('tokeninfo.getAccessToken, fail 501');
+      res.sendStatus(501);
+    }
     else {
+      log.info('tokeninfo.getAccessToken, 200 OK, tokens:', tokens);
       res.status(200).json(tokens);
     }
   }

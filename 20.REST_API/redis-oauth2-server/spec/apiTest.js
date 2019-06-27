@@ -1,5 +1,4 @@
 'use strict';
-
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const app = require('../app');
@@ -12,6 +11,8 @@ chai.use(chaiHttp);
 
 describe('request AccessTokenWithClientCredential', () => {
     it('SUCCESS to get AccessToken', function(done) {
+        this.timeout(15000);
+
         chai.request(app)
             .post('/oauth/token')
             .set('content-type', 'application/x-www-form-urlencoded')
@@ -37,6 +38,8 @@ describe('request AccessTokenWithClientCredential', () => {
             });
     });
     it('FAIL to get AccessToken', function(done) {
+        this.timeout(15000);
+
         chai.request(app)
             .post('/oauth/token')
             .set('content-type', 'application/x-www-form-urlencoded')
@@ -55,6 +58,8 @@ describe('request AccessTokenWithClientCredential', () => {
             });
     });
     it('FAIL to auth AccessToken', function(done) {
+        this.timeout(15000);
+        
         chai.request(app)
             .get('/v1/tokeninfo')
             .query('access_token', 'invalid_access_token')
