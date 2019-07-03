@@ -1,0 +1,33 @@
+{
+  "name": "nodemsghttpd",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "test": "set DEBUG=before*,after* && mocha spec/*.js --exit",
+    "dev": "export NODE_ENV=development || set NODE_ENV=development&& node ./bin/www",
+    "prod": "export NODE_ENV=production || set NODE_ENV=production&& node ./bin/www"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.5",
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
+    "cookie-parser": "^1.4.4",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "express-oauth-server": "^2.0.0",
+    "formidable": "^1.2.1",
+    "http-errors": "~1.6.3",
+    "jade": "~1.11.0",
+    "jsonwebtoken": "^8.5.1",
+    "log4js": "^4.4.0",
+    "morgan": "~1.9.1",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0",
+    "redis": "^2.8.0",
+    "request": "^2.88.0"
+  },
+  "devDependencies": {
+    "mocha": "^6.1.4"
+  }
+}
