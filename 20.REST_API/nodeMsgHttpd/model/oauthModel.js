@@ -1,7 +1,7 @@
 'use strict';
 var log = require('log4js').getLogger("oauthModel");
 var config = require('../config');
-
+var crypto = require('crypto');
 var jwt = require('jsonwebtoken');
 
 // connect to Redis
@@ -102,7 +102,8 @@ var getUser = function(username, password, callback) {
             }
             else {
                 callback(null, {
-                    id: username
+                    id: username,
+                    password: password
                 });
             }
         })
@@ -131,7 +132,7 @@ var saveToken = function(token, client, user) {
     // JWT
     var jwtToken = jwt.sign(
         {
-            "iss": config.JWT.ISS,  // iss: 토큰 발급자
+            "iss": config.JWT.ISS,  // iss: ?�큰 발급??
             "exp": Math.floor(token.accessTokenExpiresAt.getTime() / 1000),
             "accessToken": token.accessToken,
             "clientId": client.id
@@ -140,6 +141,7 @@ var saveToken = function(token, client, user) {
         , { algorithm: 'HS256' });
     data.accessToken = jwtToken;
     log.debug(">>> saveToken:token.accessToken=", data.accessToken);
+    log.debug(">>> user=", user);
 
     return Promise.all([
                 db.hmset(fmt(formats.token, token.accessToken), data),
@@ -167,6 +169,10 @@ var validateScope = function(user, client, scope, callback) {
             }
             else {
                 log.debug(">>> validateScope.scope : ", scope);
+
+                var hash = crypto.createHash('sha256').update(user.password).digest("hex");
+                log.debug(">>> validateScope.password.hash=", hash, ", AuthKey=", resClient.AuthKey);
+                
                 callback(null, (scope));
             }
         })

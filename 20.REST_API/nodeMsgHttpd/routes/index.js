@@ -100,7 +100,7 @@ var handleFileUpload = function(req, res, next, cb) {
           var new_path = config.DIRECTORY.UPLOAD + "/" + msgKey + "_" + nFileIndex + "_" + decodeURIComponent(fileItem.name);
           fs.rename(fileItem.path, new_path, function (err) { 
             if (err) { 
-              log.debug("rename.fail:", err);
+              log.info("rename.fail:", err);
             } 
             else {
               log.debug("rename.success!:", nFileIndex, ", new_path:", new_path);

@@ -27,7 +27,6 @@ const httpsOptions = {
     cert: certificate
 };
 
-
 module.exports = {
     LOG,
     REDIS,
