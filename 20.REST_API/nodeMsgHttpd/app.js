@@ -15,7 +15,7 @@ require('./model/passport');
 
 var log = log4js.getLogger("app");
 console.log('config/log4js-' + (config.LOG.ENV) + '.json');
-log4js.configure('config/log4js-' + (config.LOG.ENV) + '.json');
+log4js.configure(path.join(__dirname, 'config/log4js-' + (config.LOG.ENV) + '.json'));
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');

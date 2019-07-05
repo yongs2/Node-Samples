@@ -2,7 +2,9 @@
   "name": "nodemsghttpd",
   "version": "0.0.0",
   "private": true,
+  "bin": "./bin/www",
   "scripts": {
+    "build": "pkg . --targets node10-linux-x64,node10-win-x64",
     "start": "node ./bin/www",
     "test": "set DEBUG=before*,after* && mocha spec/*.js --exit",
     "dev": "export NODE_ENV=development || set NODE_ENV=development&& node ./bin/www",
@@ -28,6 +30,10 @@
     "request": "^2.88.0"
   },
   "devDependencies": {
-    "mocha": "^6.1.4"
+    "mocha": "^6.1.4",
+    "pkg": "^4.4.0"
+  },
+  "pkg": {
+    "assets": [ "config/**/*", "public/**/*", "views/**/*" ]
   }
 }
