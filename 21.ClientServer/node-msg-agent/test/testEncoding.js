@@ -8,7 +8,7 @@ console.log("message=", varMessage.length, ", Data=", varMessage)
 var bufMessage = new Buffer(varMessage);
 console.log("varMessage.utf8.legnth=", varMessage.length);
 console.log("varMessage.buff.legnth=", bufMessage.length);
-console.log("varMessage.euckr.length=", iconv.encode(bufMessage, 'EUC-KR').toString().length);
+console.log("varMessage.euckr.length=", iconv.encode(bufMessage, 'EUC-KR').toString('binary').length);
 var cP_Message = iconv.encode(bufMessage, 'euc-kr', {stripBOM: false});
 console.log("varMessage.cpBf.length=", cP_Message.length);
 

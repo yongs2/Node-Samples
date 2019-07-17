@@ -5,7 +5,7 @@
 
 from twisted.protocols.basic import LineReceiver
 from twisted.internet.protocol import ClientFactory, ServerFactory
-from twisted.internet import reactor
+from twisted.internet import endpoints, reactor, ssl
 
 import string
 import re
@@ -15,6 +15,7 @@ import struct
 from array import array
 import enum
 from time import sleep
+from datetime import datetime
 
 from importlib import reload
 reload(sys)
@@ -73,8 +74,8 @@ def Dump(data, len) :
         nStart = nStart + 1
 
 MAX_MSG_SIZE = 2048
-MAX_HEADER_SIZE = 12
-MAX_BODY_SIZE = MAX_MSG_SIZE - MAX_HEADER_SIZE  # 2048 - 12 = 2036
+MAX_HEADER_SIZE = 16
+MAX_BODY_SIZE = MAX_MSG_SIZE - MAX_HEADER_SIZE  # 2048 - 16 = 2032
 
 class AGT_MSG_HEADER(object) :
     MESSAGE_STR="AGT_MSG_HEADER"
@@ -86,8 +87,8 @@ class AGT_MSG_HEADER(object) :
         ,('ucMsgName',      'B')
         ,('ucVersion',      'B')
         ,('ucReserverd',    'b')
-        ,('ulSeq',          'L')
-    ] # 2+2+1+1+1+1 + 4 = 12 bytes
+        ,('ulSeq',          'Q')
+    ] # 2+2+1+1+1+1 + 8 = 16 bytes
     data = {}
     
     def __init__(self, *data):
@@ -148,7 +149,7 @@ class AGT_MSG_HEADER(object) :
 class AGT_MSG_BASE(object) :
     MESSAGE_STR="AGT_MSG_BASE"
     LABELS = [
-         ('szExta',          '2036s') ]       # 2048 -12 = 2036
+         ('szExta',          '2032s') ]       # 2048 -16 = 2032
     data = {}
     
     def __init__(self, *data):
@@ -226,7 +227,7 @@ class AGT_KEEP_ALIVE(AGT_MSG_BASE) :
 class AGT_BIND_REQ(AGT_MSG_BASE) :
     MESSAGE_STR="AGT_BIND_REQ"
     LABELS = [
-         ('szLogInID',      '32s')
+         ('szLoginId',      '32s')
         ,('szToken',        '256s')
         ,('cRvSMS_F',       'c')
         ,('cRvMMS_F',       'c')
@@ -268,6 +269,36 @@ class AGT_BIND_RSP(AGT_MSG_BASE) :
                                 , self.data[1]
                                 , self.data[2]
                             )
+
+class AGT_UNBIND_REQ(AGT_MSG_BASE) :
+    MESSAGE_STR="AGT_UNBIND_REQ"
+    LABELS = [
+         ('szLoginId',      '32s')
+    ]   # 32 = 32 bytes
+    data = {}
+    
+    def __init__(self, *data):
+        super(AGT_UNBIND_REQ, self).__init__(data)
+        
+    def Pack(self) :
+        print ('%s Pack()...%s ' % (self.MESSAGE_STR, self.data))
+        fmt = '!' + ''.join([label[1] for label in self.LABELS])
+        return struct.pack(fmt  , self.data[0].encode(ENCODE_STR))
+
+class AGT_UNBIND_RSP(AGT_MSG_BASE) :
+    MESSAGE_STR="AGT_UNBIND_RSP"
+    LABELS = [
+         ('nResult',        'i')
+    ]   # 4+1+1 = 6 bytes
+    data = {}
+    
+    def __init__(self, *data):
+        super(AGT_UNBIND_RSP, self).__init__(data)
+        
+    def Pack(self) :
+        print ('%s Pack()...%s ' % (self.MESSAGE_STR, self.data))
+        fmt = '!' + ''.join([label[1] for label in self.LABELS])
+        return struct.pack(fmt  , self.data[0])
 
 class AGT_SUBMIT_REQ(AGT_MSG_BASE) :
     MESSAGE_STR="AGT_SUBMIT_REQ"
@@ -392,6 +423,63 @@ class AGT_REPORT_RSP(AGT_MSG_BASE) :
                                 , self.data[4].encode(ENCODE_STR)
                             )
 
+class AGT_READREPLY_REQ(AGT_MSG_BASE) :
+    MESSAGE_STR="AGT_READREPLY_REQ"
+    LABELS = [
+         ('nMsgType',       'i')    # __enAgtMsg, SMS:0, LMS:1, MMS:2
+        ,('szMsgKey',       '16s')
+        ,('szQuerySessionKey', '64s')   # 시스템 생성 키
+        ,('szCaller',       '16s')
+        ,('szCallee',       '16s')
+        ,('szChkdDate',     '16s')  # 확인 시간
+        ,('nSendResult',    'i')    # 전송 결과, 0:Success, 1:Fail
+        ,('szErrCode',      '8s')   # 에러코드
+        ,('szErrText',      '256s') # 에러텍스트
+        ,('szReportID',     '32s')  # ReportID
+    ]   # 4+16+64+16+16+16+4+8+256+32 = 432 bytes
+    data = {}
+    
+    def __init__(self, *data):
+        super(AGT_READREPLY_REQ, self).__init__(data)
+        
+    def Pack(self) :
+        print ('%s Pack()...%s ' % (self.MESSAGE_STR, self.data))
+        fmt = '!' + ''.join([label[1] for label in self.LABELS])
+        return struct.pack(fmt  , self.data[0]
+                                , self.data[1].encode(ENCODE_STR)
+                                , self.data[2].encode(ENCODE_STR)
+                                , self.data[3].encode(ENCODE_STR)
+                                , self.data[4].encode(ENCODE_STR)
+                                , self.data[5].encode(ENCODE_STR)
+                                , self.data[6]
+                                , self.data[7].encode(ENCODE_STR)
+                                , self.data[8].encode(ENCODE_STR)
+                                , self.data[9].encode(ENCODE_STR)
+                            )
+
+class AGT_READREPLYT_RSP(AGT_MSG_BASE) :
+    MESSAGE_STR="AGT_READREPLYT_RSP"
+    LABELS = [
+         ('nResult',        'i')
+        ,('nMsgType',       'i')    # __enAgtMsg, SMS:0, LMS:1, MMS:2
+        ,('szMsgKey',       '16s')
+        ,('szQuerySessionKey', '64s')   # 시스템 생성 키
+        ,('szReportID',     '32s')  # ReportID
+    ]   # 4+4+16+64+32 = 120 bytes
+    data = {}
+    
+    def __init__(self, *data):
+        super(AGT_READREPLYT_RSP, self).__init__(data)
+        
+    def Pack(self) :
+        print ('%s Pack()...%s ' % (self.MESSAGE_STR, self.data))
+        fmt = '!' + ''.join([label[1] for label in self.LABELS])
+        return struct.pack(fmt  , self.data[0]
+                                , self.data[1]
+                                , self.data[2].encode(ENCODE_STR)
+                                , self.data[3].encode(ENCODE_STR)
+                                , self.data[4].encode(ENCODE_STR)
+                            )
 
 class MrpClientProtocol(LineReceiver):
     def __init__(self):
@@ -451,11 +539,26 @@ class MrpClientProtocol(LineReceiver):
                     if(self.agtMsgHeader.ucMsgName == AGT_MSG_NAME.BIND.value) :
                         self.OnBindReq(agtMsgHeader, body)
                         self.m_nState = 1
+                    if(self.agtMsgHeader.ucMsgName == AGT_MSG_NAME.UNBIND.value) :
+                        self.OnUnbindReq(agtMsgHeader, body)
                     elif(self.agtMsgHeader.ucMsgName == AGT_MSG_NAME.SUBMIT.value) :
                         self.OnSubmitReq(agtMsgHeader, body)
                         self.m_nState = 2
+                    elif(self.agtMsgHeader.ucMsgName == AGT_MSG_NAME.REPORT.value) :
+                        self.OnReportReq(agtMsgHeader, body)
+                    elif(self.agtMsgHeader.ucMsgName == AGT_MSG_NAME.READREPLY.value) :
+                        self.OnReadReplyReq(agtMsgHeader, body)
                 elif (self.agtMsgHeader.ucMsgType == AGT_MSG_TYPE.RSP.value) :
-                    pass
+                    if(self.agtMsgHeader.ucMsgName == AGT_MSG_NAME.BIND.value) :
+                        pass
+                    if(self.agtMsgHeader.ucMsgName == AGT_MSG_NAME.UNBIND.value) :
+                        pass
+                    elif(self.agtMsgHeader.ucMsgName == AGT_MSG_NAME.SUBMIT.value) :
+                        pass
+                    elif(self.agtMsgHeader.ucMsgName == AGT_MSG_NAME.REPORT.value) :
+                        pass
+                    elif(self.agtMsgHeader.ucMsgName == AGT_MSG_NAME.READREPLY.value) :
+                        pass
                 elif (self.agtMsgHeader.ucMsgType == AGT_MSG_TYPE.KA.value) :
                     if(self.agtMsgHeader.ucMsgName == AGT_MSG_NAME.KA.value) :
                         self.OnKeepAlive(agtMsgHeader, body)
@@ -470,7 +573,7 @@ class MrpClientProtocol(LineReceiver):
 
     def OnBindReq(self, reqHeader, body):
         bindReq = AGT_BIND_REQ(body)
-        loginId = bindReq.szLogInID
+        loginId = bindReq.szLoginId
         szToken = bindReq.szToken
         print ("    ID=[%s] Token=[%s]" % (loginId.strip('\x00'), szToken.strip('\x00')))
 
@@ -498,6 +601,10 @@ class MrpClientProtocol(LineReceiver):
 
         nWrite = self.transport.write(stHeader + stBody)
         print ("    <<< AGT_BIND_RSP")
+
+    def OnUnbindReq(self, reqHeader, body):
+        unbindReq = AGT_UNBIND_REQ(body)
+        szLoginId = unbindReq.szLoginId
 
     def OnSubmitReq(self, reqHeader, body):
         submitReq = AGT_SUBMIT_REQ(body)
@@ -544,6 +651,90 @@ class MrpClientProtocol(LineReceiver):
 
         nWrite = self.transport.write(stHeader + stBody)
         print ("    <<< AGT_SUBMIT_RSP")
+        reactor.callLater(3.5, self.sendReportReq, rspHeader, submitRsp)
+        reactor.callLater(5.5, self.sendReadReplyReq, rspHeader, submitRsp)
+
+    def sendReportReq(self, rspHeader, submitRsp):
+        print ("    --- sendReportReq. MsgKey[%s],H[%d],Rsp[%s]" % 
+            ( submitRsp.szMsgKey
+            , rspHeader.ulSeq
+            , submitRsp.szQuerySessionKey))
+        
+        nMsgType = submitRsp.nMsgType
+        szMsgKey = submitRsp.szMsgKey
+        szQuerySessionKey = submitRsp.szQuerySessionKey
+
+        ucVersion = rspHeader.ucVersion
+        ulSeq = rspHeader.ulSeq
+
+        reportReq = AGT_REPORT_REQ()
+        reportReq.nMsgType = nMsgType
+        reportReq.szMsgKey = szMsgKey
+        reportReq.szQuerySessionKey = szQuerySessionKey
+        reportReq.szSendDate = datetime.now().strftime('%Y%m%d%H%M%S')
+        reportReq.nSendResult = 0
+        reportReq.szErrCode = "0"
+        reportReq.szErrText = "SUCCESS"
+        reportReq.szReportID = "RPTID_0001"
+
+        stBody = reportReq.Pack()
+
+        lenBody = len(reportReq)
+
+        reqHeader = AGT_MSG_HEADER()
+        reqHeader.cFrame0 = 0xFE
+        reqHeader.cFrame1 = 0xFE
+        reqHeader.usLength = MAX_HEADER_SIZE + lenBody
+        reqHeader.ucMsgType = int(AGT_MSG_TYPE.REQ.value)
+        reqHeader.ucMsgName = int(AGT_MSG_NAME.REPORT.value)
+        reqHeader.ucVersion = ucVersion
+        reqHeader.ucReserverd = 0
+        reqHeader.ulSeq = ulSeq
+        stHeader = reqHeader.Pack()
+
+        nWrite = self.transport.write(stHeader + stBody)
+        print ("    <<< AGT_REPORT_REQ")
+
+    def sendReadReplyReq(self, rspHeader, submitRsp):
+        print ("    --- sendReadReplyReq. MsgKey[%s],H[%d],Rsp[%s]" % 
+            ( submitRsp.szMsgKey
+            , rspHeader.ulSeq
+            , submitRsp.szQuerySessionKey))
+        
+        nMsgType = submitRsp.nMsgType
+        szMsgKey = submitRsp.szMsgKey
+        szQuerySessionKey = submitRsp.szQuerySessionKey
+
+        ucVersion = rspHeader.ucVersion
+        ulSeq = rspHeader.ulSeq
+
+        readReplyReq = AGT_READREPLY_REQ()
+        readReplyReq.nMsgType = nMsgType
+        readReplyReq.szMsgKey = szMsgKey
+        readReplyReq.szQuerySessionKey = szQuerySessionKey
+        readReplyReq.szChkdDate = datetime.now().strftime('%Y%m%d%H%M%S')
+        readReplyReq.nSendResult = 0
+        readReplyReq.szErrCode = "0"
+        readReplyReq.szErrText = "SUCCESS"
+        readReplyReq.szReportID = "RPTID_0001"
+
+        stBody = readReplyReq.Pack()
+
+        lenBody = len(readReplyReq)
+
+        reqHeader = AGT_MSG_HEADER()
+        reqHeader.cFrame0 = 0xFE
+        reqHeader.cFrame1 = 0xFE
+        reqHeader.usLength = MAX_HEADER_SIZE + lenBody
+        reqHeader.ucMsgType = int(AGT_MSG_TYPE.REQ.value)
+        reqHeader.ucMsgName = int(AGT_MSG_NAME.READREPLY.value)
+        reqHeader.ucVersion = ucVersion
+        reqHeader.ucReserverd = 0
+        reqHeader.ulSeq = ulSeq
+        stHeader = reqHeader.Pack()
+
+        nWrite = self.transport.write(stHeader + stBody)
+        print ("    <<< AGT_READREPLY_REQ")
 
     def OnKeepAlive(self, reqHeader, body):
         recvKeepAlive = AGT_KEEP_ALIVE(body)
@@ -609,8 +800,9 @@ class MyFactory(ClientFactory):
             print ('$ client instance is null')
             self.messageQueue.append(msg)
 
-host = '127.0.0.1'
+host = '0.0.0.0'
 port = 4000
+ports = 4443
 if __name__ == '__main__':
     argc = len(sys.argv)
   
@@ -621,6 +813,11 @@ if __name__ == '__main__':
 
     if argc >= 1 :
         myFactory = MyFactory(0)
+        
+        description = ('ssl:%d:interface=0.0.0.0:certKey=keys/server.crt:privateKey=keys/server.key' % (ports))
+        tls_server = endpoints.serverFromString(reactor, description)
+        tls_server.listen(myFactory)
+
         reactor.listenTCP(port, myFactory)
         reactor.run()
     else :
