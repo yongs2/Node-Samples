@@ -131,9 +131,7 @@ function OnSecureConnect() {
 
 function OnConnect() {
     log.info('=== connect success : local = ' + this.localAddress + ':' + this.localPort + ', remote = ' + this.remoteAddress + ':' +this.remotePort); 
- 
-    log.info("=== SSL : ", client.getProtocol(), ", ", client.getPeerCertificate(true), ", ", client.getCipher(), ", ", client.authorized, ", ", client.getFinished())
-    log.info("=== SSL : ", client.getTLSTicket())
+    
     if(assembler == undefined) {
         client.removeAllListeners('data');
         assembler = new SocketPacketAssembler(client);
@@ -174,7 +172,7 @@ function OnConnect() {
         var bindRsp = new agtMsg.BindRsp(buffer);
         log.info("<== msgBindRsp=", bindRsp.nResult, bindRsp.sMaxTPS_SMS, bindRsp.sMaxTPS_LMS);
 
-        /*if(intervalKeepAlive == undefined) {
+        if(intervalKeepAlive == undefined) {
             // 주기적으로 KEEP_ALIVE 메시지를 전송해야 함
             intervalKeepAlive = setInterval(TimerKeepAlive, nIntervalMsKeepAlive, client);
         }
@@ -182,7 +180,7 @@ function OnConnect() {
         if(intervalAgentDb == undefined) {
             // 주기적으로 AgentDB에서 전송할 데이터가 있는 지 확인해야 함
             intervalAgentDb = setInterval(TimerAgentDb, nIntervalMsAgentDb, client);
-        }*/
+        }
 
         readBytesHeader(assembler);
     });
@@ -517,8 +515,9 @@ function concatTypedArrays(a, b) { // a, b TypedArray of same type
 function TimerAgentDb(socket) {
     agentdb.getMsgCnt(function(err, result) {
         if(!err) {
-            log.debug(">>> TimerAgentDb.getMsgCnt=", result);
+            //log.debug(">>> TimerAgentDb.getMsgCnt=", result);
             if(result > 0) {
+                log.debug(">>> TimerAgentDb.getMsgCnt=", result);
                 agentdb.getMsg(function(err, result) {
                     if(!err) {
                         log.debug(">>> TimerAgentDb.getMsg=", result.length);

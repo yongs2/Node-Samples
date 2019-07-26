@@ -277,7 +277,7 @@ var getMsg = function(callback) {
                             else {
                                 log.info(">>> getMsg.updateMsgProcSts : err: ", err)
                             }
-                        });    // PROC_STS=1 로 업데이트
+                        });    // PROC_STS=1 �??�데?�트
                         
                         callback(null, resultMap);
                     }
@@ -432,7 +432,9 @@ var getMsgCnt = function(callback) {
             log.debug("getMsgCnt.query=", query);
             conn.query(query)
                 .then((rows) => {
-                    log.debug("getMsgCnt.MSG_CNT=", rows[0]['MSG_CNT']); //[ {val: 1}, meta: ... ]
+                    if(rows[0]['MSG_CNT'] > 0) {
+                        log.debug("getMsgCnt.MSG_CNT=", rows[0]['MSG_CNT']); //[ {val: 1}, meta: ... ]
+                    }
                     conn.end(); //release to pool
                     callback(null, rows[0]['MSG_CNT']);
                 })
