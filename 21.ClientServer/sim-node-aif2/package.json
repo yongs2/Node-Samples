@@ -1,0 +1,31 @@
+{
+  "name": "sim-node-aif2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "bin": "app.js",
+  "scripts": {
+    "build": "pkg . --targets node10-linux-x64,node10-win-x64",
+    "start": "node ./app",
+    "dev": "export NODE_ENV=development || set NODE_ENV=development&& node ./app",
+    "prod": "export NODE_ENV=production || set NODE_ENV=production&& node ./app",
+    "test": "set DEBUG=before*,after* && mocha spec/*.js --exit"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dateformat": "^3.0.3",
+    "http-errors": "^1.7.3",
+    "iconv-lite": "^0.5.0",
+    "log4js": "^4.5.1",
+    "mariadb": "^2.1.0",
+    "request": "^2.88.0",
+    "socket-packet-assembler": "^1.0.1",
+    "sprintf-js": "^1.1.2"
+  },
+  "pkg": {
+    "assets": [
+      "config/**/*"
+    ]
+  }
+}
